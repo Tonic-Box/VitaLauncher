@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    kotlin("jvm") version "1.9.24"
 }
 
 group = "com.tonic.launcher"
@@ -16,8 +17,12 @@ dependencies {
     implementation("commons-beanutils:commons-beanutils:1.11.0")
     compileOnly("org.projectlombok:lombok:1.18.24")
     annotationProcessor("org.projectlombok:lombok:1.18.24")
+    implementation(kotlin("stdlib-jdk8"))
 }
 
 tasks.test {
     useJUnitPlatform()
+}
+kotlin {
+    jvmToolchain(11)
 }
