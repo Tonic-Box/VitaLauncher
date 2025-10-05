@@ -16,7 +16,9 @@ import java.util.List;
 public class LauncherMain {
     public static final Path VITA_DIR = Path.of(System.getProperty("user.home"), ".runelite", "vitalite");
     public static final Path JDK_DIR = Path.of(VITA_DIR.toString(), "jdk");
+    public static final Path JDK_DIR_MAC = Path.of(VITA_DIR.toString(), "jdk", "Contents", "Home");
     public static final Path JDK_BIN_DIR = Path.of(JDK_DIR.toString(), "bin");
+    public static final Path JDK_BIN_DIR_MAC = Path.of(JDK_DIR_MAC.toString(), "bin");
     private static SplashScreen splash;
 
     public static void main(String[] args) {

@@ -9,7 +9,7 @@ import java.util.zip.GZIPInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 
-import static com.tonic.launcher.LauncherMain.JDK_DIR;
+import static com.tonic.launcher.LauncherMain.*;
 
 public class JDKManager {
 
@@ -43,7 +43,11 @@ public class JDKManager {
     private static Path getJavaExecutable() {
         String os = System.getProperty("os.name").toLowerCase();
         String javaExe = os.contains("win") ? "java.exe" : "java";
-        return JDK_DIR.resolve("bin").resolve(javaExe);
+        if(os.contains("mac")) {
+            // On macOS, the java executable is located in Contents/Home/bin
+            return JDK_BIN_DIR_MAC.resolve(javaExe);
+        }
+        return JDK_BIN_DIR.resolve(javaExe);
     }
 
     private static void downloadAndExtractJDK() throws IOException {

@@ -35,7 +35,12 @@ public class JVMLauncher {
             throw new IOException("VitaLite JAR file not found");
         }
 
+        String os = System.getProperty("os.name").toLowerCase();
         String javaBin = LauncherMain.JDK_BIN_DIR + File.separator + "java";
+        if(os.contains("mac"))
+        {
+            javaBin = LauncherMain.JDK_BIN_DIR_MAC + File.separator + "java";
+        }
         if (System.getProperty("os.name").toLowerCase().contains("win")) {
             javaBin += ".exe";
         }

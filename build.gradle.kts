@@ -1,10 +1,11 @@
 plugins {
+    id("com.github.johnrengelman.shadow") version "8.1.1"
     id("java")
     kotlin("jvm") version "1.9.24"
 }
 
 group = "com.tonic.launcher"
-version = "1.0-SNAPSHOT"
+version = "1.1"
 
 repositories {
     mavenCentral()
@@ -20,9 +21,33 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
 }
 
-tasks.test {
-    useJUnitPlatform()
+tasks {
+    build {
+        finalizedBy("shadowJar")
+    }
+
+    jar {
+        manifest {
+            attributes(mutableMapOf("Main-Class" to "com.tonic.launcher.LauncherMain"))
+        }
+    }
+
+    shadowJar {
+        archiveClassifier.set("shaded")
+        isZip64 = true
+
+        manifest {
+            attributes(
+                "Main-Class" to "com.tonic.launcher.LauncherMain",
+                "Implementation-Version" to project.version,
+                "Implementation-Title" to "VitaLauncher",
+                "Implementation-Vendor" to "Tonic",
+                "Multi-Release" to "true"
+            )
+        }
+    }
 }
+
 kotlin {
     jvmToolchain(11)
 }
