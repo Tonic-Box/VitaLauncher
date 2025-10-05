@@ -30,8 +30,8 @@ public class UpdateProcessor
             return false;
 
         splash.setStatusText("Downloading VitaLite " + Versioning.getLiveVitaLiteVersion() + "...");
-        writeVersion();
         downloadLatestVitaLite();
+        writeVersion();
         return true;
     }
 
