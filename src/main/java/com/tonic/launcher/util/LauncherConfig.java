@@ -93,4 +93,14 @@ public class LauncherConfig
     {
         config.setProperty("proxyData", proxyData);
     }
+
+    public boolean isMouseHook()
+    {
+        return config.getBooleanOrDefault("mouseHook", false);
+    }
+
+    public void setMouseHook(boolean hook)
+    {
+        config.setProperty("mouseHook", hook);
+    }
 }

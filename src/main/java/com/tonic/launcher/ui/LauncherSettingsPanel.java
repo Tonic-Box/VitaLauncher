@@ -29,6 +29,7 @@ public class LauncherSettingsPanel extends JFrame {
     private JCheckBox incognitoCheckbox;
     private JCheckBox rsdumpCheckbox;
     private JCheckBox proxyCheckbox;
+    private JCheckBox mouseHookCheckbox;
 
     // Text fields
     private JTextField rsdumpField;
@@ -202,23 +203,27 @@ public class LauncherSettingsPanel extends JFrame {
         minCheckbox = createStyledCheckbox("Minimal Memory", "Runs JVM with minimal allocated memory");
         noMusicCheckbox = createStyledCheckbox("Disable Music", "Prevent the loading of music tracks");
         incognitoCheckbox = createStyledCheckbox("Incognito Mode", "Visually display as 'RuneLite' instead of 'VitaLite'");
+        mouseHookCheckbox = createStyledCheckbox("Disable RL DLL", "Disable RuneLites mouse hook DLL from loading or being called.");
 
         //load default states
         noPluginsCheckbox.setSelected(config.isNoPlugins());
         minCheckbox.setSelected(config.isMin());
         noMusicCheckbox.setSelected(config.isNoMusic());
         incognitoCheckbox.setSelected(config.isIncognito());
+        mouseHookCheckbox.setSelected(config.isMouseHook());
 
         //listeners
         noPluginsCheckbox.addActionListener(e -> config.setNoPlugins(noPluginsCheckbox.isSelected()));
         minCheckbox.addActionListener(e -> config.setMin(minCheckbox.isSelected()));
         noMusicCheckbox.addActionListener(e -> config.setNoMusic(noMusicCheckbox.isSelected()));
         incognitoCheckbox.addActionListener(e -> config.setIncognito(incognitoCheckbox.isSelected()));
+        mouseHookCheckbox.addActionListener(e -> config.setMouseHook(mouseHookCheckbox.isSelected()));
 
         booleanOptionsPanel.add(noPluginsCheckbox);
         booleanOptionsPanel.add(minCheckbox);
         booleanOptionsPanel.add(noMusicCheckbox);
         booleanOptionsPanel.add(incognitoCheckbox);
+        booleanOptionsPanel.add(mouseHookCheckbox);
 
         // String options with text fields
         JPanel stringOptionsPanel = new JPanel();
