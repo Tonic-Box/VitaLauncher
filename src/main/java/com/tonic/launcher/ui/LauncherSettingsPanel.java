@@ -390,7 +390,7 @@ public class LauncherSettingsPanel extends JFrame {
         }
 
         if (proxyCheckbox.isSelected() && !proxyField.getText().trim().isEmpty()) {
-            args.add("-proxy");
+            args.add("--proxy");
             args.add(proxyField.getText().trim());
         }
 
