@@ -34,9 +34,9 @@ public enum Update {
         String liveVita = Versioning.getLiveVitaLiteVersion();
         String current = Versioning.getVitaLiteVersion();
 
-        if(!current.startsWith(liveRunelite))
+        if(!current.startsWith(liveRunelite + "_"))
         {
-            if(liveVita.startsWith(liveRunelite))
+            if(liveVita.startsWith(liveRunelite + "_"))
             {
                 return UPDATE_AVAILABLE;
             }
