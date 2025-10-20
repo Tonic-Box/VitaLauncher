@@ -51,19 +51,22 @@ public class LauncherMain {
     }
 
     private static void performLoadingSequence(List<String> cliArgs) throws Exception {
-        splash.setProgressAndStatus(0, "Ensuring JDK 11...");
-        JDKManager.ensureJDK();
+        // JDK: 0-40% overall
+        JDKManager.ensureJDK(splash);
 
-        splash.setProgressAndStatus(33, "Checking for updates...");
+        // Updates: 40-70% overall
+        splash.setProgress(0, 40, "Checking for updates...");
         if(!UpdateProcessor.process(splash))
         {
             splash.setError("An update is required but not yet available. Please try again later.");
             return;
         }
 
-        splash.setProgressAndStatus(66, "Launching VitaLite...");
+        // Launching: 70-99% overall (stay at 99% until callback confirms launch)
+        splash.setProgress(100, 99, "Launching VitaLite...");
         JVMLauncher.launchExternalJar(cliArgs, () -> {
-            splash.setProgressAndStatus(100, "Launch complete!");
+            // Only reaches 100% when VitaLite confirms it's ready
+            splash.setProgress(100, 100, "Launch complete!");
             try {
                 Thread.sleep(500);
             } catch (InterruptedException e) {
@@ -75,7 +78,7 @@ public class LauncherMain {
     private static void setFrameIcon(JFrame frame) {
         try {
             BufferedImage icon = ImageIO.read(
-                LauncherMain.class.getResourceAsStream("/com/tonic/launcher/window_icon.png")
+                    LauncherMain.class.getResourceAsStream("/com/tonic/launcher/window_icon.png")
             );
             if (icon != null) {
                 frame.setIconImage(icon);
