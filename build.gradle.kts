@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.tonic.launcher"
-version = "1.5"
+version = "1.7"
 
 repositories {
     mavenCentral()

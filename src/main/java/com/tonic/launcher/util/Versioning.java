@@ -36,7 +36,7 @@ public final class Versioning
 
     public static String getLiveRuneliteVersion()
     {
-        return RuneliteConfigUtil.getTagValueFromURL("release");
+        return RuneliteConfigUtil.getRuneLiteVersion();
     }
 
     /**
