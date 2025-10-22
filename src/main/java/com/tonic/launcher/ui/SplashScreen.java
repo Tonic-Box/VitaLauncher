@@ -9,7 +9,7 @@ import java.io.IOException;
 
 public class SplashScreen extends JWindow {
     private static final int WIDTH = 500;
-    private static final int HEIGHT = 320;
+    private static final int HEIGHT = 350;
     private static final int PROGRESS_BAR_HEIGHT = 30;
     private static final int CORNER_RADIUS = 20;
 
@@ -22,10 +22,11 @@ public class SplashScreen extends JWindow {
     private static final Color ERROR_COLOR = new Color(220, 60, 60);
 
     private final SplashPanel splashPanel;
-    private int progress = 0;
-    private String statusText = "Initializing...";
+    private int stageProgress = 0;  // Progress of current stage (0-100)
+    private int overallProgress = 0; // Overall progress (0-100)
+    private String stageText = "Initializing...";
     private boolean isError = false;
-    private JButton closeButton;
+    private final JButton closeButton;
 
     public SplashScreen() {
         JLayeredPane layeredPane = new JLayeredPane();
@@ -49,24 +50,41 @@ public class SplashScreen extends JWindow {
         setShape(new RoundRectangle2D.Double(0, 0, WIDTH, HEIGHT, CORNER_RADIUS, CORNER_RADIUS));
     }
 
-    public void setProgress(int progress) {
-        this.progress = Math.max(0, Math.min(100, progress));
+    /**
+     * Set the stage progress (0-100) for the current operation
+     */
+    public void setStageProgress(int progress, String text) {
+        this.stageProgress = Math.max(0, Math.min(100, progress));
+        this.stageText = text;
         SwingUtilities.invokeLater(splashPanel::repaint);
     }
 
-    public void setStatusText(String text) {
-        this.statusText = text;
+    /**
+     * Set the overall progress (0-100) for the entire launcher process
+     */
+    public void setOverallProgress(int progress) {
+        this.overallProgress = Math.max(0, Math.min(100, progress));
         SwingUtilities.invokeLater(splashPanel::repaint);
     }
 
+    /**
+     * Set both stage and overall progress
+     */
+    public void setProgress(int stageProgress, int overallProgress, String text) {
+        this.stageProgress = Math.max(0, Math.min(100, stageProgress));
+        this.overallProgress = Math.max(0, Math.min(100, overallProgress));
+        this.stageText = text;
+        SwingUtilities.invokeLater(splashPanel::repaint);
+    }
+
+    // Deprecated - kept for backwards compatibility
+    @Deprecated
     public void setProgressAndStatus(int progress, String text) {
-        this.progress = Math.max(0, Math.min(100, progress));
-        this.statusText = text;
-        SwingUtilities.invokeLater(splashPanel::repaint);
+        setStageProgress(progress, text);
     }
 
     public void setError(String message) {
-        this.statusText = message;
+        this.stageText = message;
         this.isError = true;
         SwingUtilities.invokeLater(() -> {
             closeButton.setVisible(true);
@@ -74,7 +92,6 @@ public class SplashScreen extends JWindow {
             splashPanel.repaint();
             revalidate();
             repaint();
-
         });
     }
 
@@ -155,26 +172,19 @@ public class SplashScreen extends JWindow {
             g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
             int centerX = getWidth() / 2;
-            int centerY = getHeight() / 2;
 
             // Draw large splash icon in background with transparency
             if (splashIcon != null) {
                 int bgIconSize = 300;
                 int bgIconX = centerX - bgIconSize / 2;
-                int bgIconY = centerY - bgIconSize / 2;
+                int bgIconY = (getHeight() / 2) - bgIconSize / 2;
 
-                // Draw with transparency
                 g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.15f));
                 g2d.drawImage(splashIcon, bgIconX, bgIconY, bgIconSize, bgIconSize, null);
                 g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
             }
 
-            // Calculate total content height to center vertically
-            int titleHeight = 48;
-            int subtitleHeight = 14;
-            int progressHeight = PROGRESS_BAR_HEIGHT + 25; // bar + percentage text
-            int totalContentHeight = titleHeight + 45 + subtitleHeight + 35 + progressHeight;
-            int y = (getHeight() - totalContentHeight) / 2 + titleHeight;
+            int y = 60;
 
             // Draw title "VitaLite"
             g2d.setColor(TITLE_COLOR);
@@ -186,70 +196,102 @@ public class SplashScreen extends JWindow {
             g2d.drawString(title, centerX - titleWidth / 2, y);
             y += 45;
 
-            // Draw version or subtitle (optional)
+            // Draw version
             g2d.setColor(new Color(150, 160, 180));
             Font subtitleFont = new Font("Arial", Font.PLAIN, 14);
             g2d.setFont(subtitleFont);
-            String subtitle = "Launcher v1.4";
+            String subtitle = "Launcher v1.5";
             FontMetrics subtitleMetrics = g2d.getFontMetrics(subtitleFont);
             int subtitleWidth = subtitleMetrics.stringWidth(subtitle);
             g2d.drawString(subtitle, centerX - subtitleWidth / 2, y);
-            y += 35;
+            y += 50;
 
-            // Progress bar dimensions
-            int barWidth = 400;
+            // === STAGE PROGRESS BAR (Top) ===
+            int barWidth = 460;
             int barX = centerX - barWidth / 2;
             int barY = y;
 
-            // Draw progress bar background
+            // Draw stage progress bar background
             g2d.setColor(PROGRESS_BG_COLOR);
             g2d.fillRoundRect(barX, barY, barWidth, PROGRESS_BAR_HEIGHT, 15, 15);
 
-            // Draw progress bar border
+            // Draw stage progress bar border
             g2d.setColor(PROGRESS_BORDER_COLOR);
             g2d.setStroke(new BasicStroke(2));
             g2d.drawRoundRect(barX, barY, barWidth, PROGRESS_BAR_HEIGHT, 15, 15);
 
-            // Draw progress fill
-            if (progress > 0) {
-                int fillWidth = (int) ((barWidth - 4) * (progress / 100.0));
+            // Draw stage progress fill
+            if (stageProgress > 0) {
+                int fillWidth = (int) ((barWidth - 4) * (stageProgress / 100.0));
                 g2d.setColor(PROGRESS_FILL_COLOR);
                 g2d.fillRoundRect(barX + 2, barY + 2, fillWidth, PROGRESS_BAR_HEIGHT - 4, 12, 12);
 
                 // Add gradient effect
                 GradientPaint gradient = new GradientPaint(
-                    barX, barY, new Color(90, 150, 220, 100),
-                    barX, barY + PROGRESS_BAR_HEIGHT, new Color(70, 130, 200, 0)
+                        barX, barY, new Color(90, 150, 220, 100),
+                        barX, barY + PROGRESS_BAR_HEIGHT, new Color(70, 130, 200, 0)
                 );
                 g2d.setPaint(gradient);
                 g2d.fillRoundRect(barX + 2, barY + 2, fillWidth, PROGRESS_BAR_HEIGHT / 2, 12, 12);
             }
 
-            // Draw status text in center of progress bar
+            // Draw stage text in center of progress bar
             Color statusColor = isError ? ERROR_COLOR : TEXT_COLOR;
             g2d.setColor(statusColor);
-            Font statusFont = new Font("Arial", Font.BOLD, 12);
+            Font statusFont = new Font("Arial", Font.BOLD, 11);
             g2d.setFont(statusFont);
             FontMetrics statusMetrics = g2d.getFontMetrics(statusFont);
-            int textWidth = statusMetrics.stringWidth(statusText);
+            int textWidth = statusMetrics.stringWidth(stageText);
             int textX = centerX - textWidth / 2;
             int textY = barY + (PROGRESS_BAR_HEIGHT / 2) + (statusMetrics.getAscent() / 2) - 2;
 
             // Draw text shadow for better visibility
             g2d.setColor(new Color(0, 0, 0, 150));
-            g2d.drawString(statusText, textX + 1, textY + 1);
+            g2d.drawString(stageText, textX + 1, textY + 1);
             g2d.setColor(statusColor);
-            g2d.drawString(statusText, textX, textY);
+            g2d.drawString(stageText, textX, textY);
 
-            // Draw percentage below progress bar
-            y = barY + PROGRESS_BAR_HEIGHT + 25;
-            g2d.setColor(new Color(150, 160, 180));
-            Font percentFont = new Font("Arial", Font.PLAIN, 13);
-            g2d.setFont(percentFont);
-            String percentText = progress + "%";
-            FontMetrics percentMetrics = g2d.getFontMetrics(percentFont);
-            int percentWidth = percentMetrics.stringWidth(percentText);
-            g2d.drawString(percentText, centerX - percentWidth / 2, y);
+            y = barY + PROGRESS_BAR_HEIGHT + 30;
+
+            // === OVERALL PROGRESS BAR (Bottom) ===
+            int overallBarY = y;
+
+            // Draw overall progress bar background
+            g2d.setColor(PROGRESS_BG_COLOR);
+            g2d.fillRoundRect(barX, overallBarY, barWidth, PROGRESS_BAR_HEIGHT, 15, 15);
+
+            // Draw overall progress bar border
+            g2d.setColor(PROGRESS_BORDER_COLOR);
+            g2d.setStroke(new BasicStroke(2));
+            g2d.drawRoundRect(barX, overallBarY, barWidth, PROGRESS_BAR_HEIGHT, 15, 15);
+
+            // Draw overall progress fill
+            if (overallProgress > 0) {
+                int fillWidth = (int) ((barWidth - 4) * (overallProgress / 100.0));
+                g2d.setColor(new Color(100, 180, 100)); // Different color for overall
+                g2d.fillRoundRect(barX + 2, overallBarY + 2, fillWidth, PROGRESS_BAR_HEIGHT - 4, 12, 12);
+
+                // Add gradient effect
+                GradientPaint gradient = new GradientPaint(
+                        barX, overallBarY, new Color(120, 200, 120, 100),
+                        barX, overallBarY + PROGRESS_BAR_HEIGHT, new Color(100, 180, 100, 0)
+                );
+                g2d.setPaint(gradient);
+                g2d.fillRoundRect(barX + 2, overallBarY + 2, fillWidth, PROGRESS_BAR_HEIGHT / 2, 12, 12);
+            }
+
+            // Draw "Overall Progress: X%" text
+            g2d.setColor(TEXT_COLOR);
+            g2d.setFont(statusFont);
+            String overallText = "Overall Progress: " + overallProgress + "%";
+            int overallTextWidth = statusMetrics.stringWidth(overallText);
+            int overallTextX = centerX - overallTextWidth / 2;
+            int overallTextY = overallBarY + (PROGRESS_BAR_HEIGHT / 2) + (statusMetrics.getAscent() / 2) - 2;
+
+            g2d.setColor(new Color(0, 0, 0, 150));
+            g2d.drawString(overallText, overallTextX + 1, overallTextY + 1);
+            g2d.setColor(TEXT_COLOR);
+            g2d.drawString(overallText, overallTextX, overallTextY);
         }
     }
 }
