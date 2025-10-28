@@ -9,10 +9,11 @@ import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.DefaultListModel;
 
 public class LauncherSettingsPanel extends JFrame {
     private static final int WIDTH = 500;
-    private static final int HEIGHT = 420;
+    private static final int HEIGHT = 650;
 
     private static final Color BACKGROUND_COLOR = new Color(30, 35, 45);
     private static final Color PANEL_COLOR = new Color(40, 45, 55);
@@ -34,6 +35,10 @@ public class LauncherSettingsPanel extends JFrame {
     // Text fields
     private JTextField rsdumpField;
     private JTextField proxyField;
+
+    // JVM Args
+    private DefaultListModel<String> jvmArgsListModel;
+    private JList<String> jvmArgsList;
 
     // Launch callback
     private LaunchCallback launchCallback;
@@ -249,6 +254,11 @@ public class LauncherSettingsPanel extends JFrame {
         proxyField.setText(config.getProxyData());
         stringOptionsPanel.add(proxyComponents.panel);
 
+        // JVM Args section
+        stringOptionsPanel.add(Box.createVerticalStrut(15));
+        JPanel jvmArgsPanel = createJvmArgsPanel();
+        stringOptionsPanel.add(jvmArgsPanel);
+
         // Add sections to main panel with spacing
         JPanel topSection = new JPanel(new BorderLayout());
         topSection.setBackground(PANEL_COLOR);
@@ -259,6 +269,143 @@ public class LauncherSettingsPanel extends JFrame {
         panel.add(stringOptionsPanel, BorderLayout.CENTER);
 
         return panel;
+    }
+
+    private JPanel createJvmArgsPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BorderLayout(10, 8));
+        panel.setBackground(PANEL_COLOR);
+
+        // Title label
+        JLabel titleLabel = new JLabel("JVM Arguments:");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 13));
+        titleLabel.setForeground(TEXT_COLOR);
+
+        // Initialize list model and load from config
+        jvmArgsListModel = new DefaultListModel<>();
+        List<String> savedArgs = config.getJvmArgs();
+        for (String arg : savedArgs) {
+            jvmArgsListModel.addElement(arg);
+        }
+
+        // Create list
+        jvmArgsList = new JList<>(jvmArgsListModel);
+        jvmArgsList.setFont(new Font("Monospaced", Font.PLAIN, 11));
+        jvmArgsList.setBackground(new Color(50, 55, 65));
+        jvmArgsList.setForeground(TEXT_COLOR);
+        jvmArgsList.setSelectionBackground(new Color(70, 130, 200));
+        jvmArgsList.setSelectionForeground(Color.WHITE);
+        jvmArgsList.setBorder(new EmptyBorder(5, 5, 5, 5));
+
+        // Scroll pane for list
+        JScrollPane scrollPane = new JScrollPane(jvmArgsList);
+        scrollPane.setPreferredSize(new Dimension(0, 120));
+        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(60, 65, 75)));
+        scrollPane.setBackground(new Color(50, 55, 65));
+
+        // Buttons panel
+        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        buttonsPanel.setBackground(PANEL_COLOR);
+
+        JButton addButton = createSmallButton("Add");
+        JButton removeButton = createSmallButton("Remove");
+        JButton resetButton = createSmallButton("Reset to Defaults");
+
+        addButton.addActionListener(e -> addJvmArg());
+        removeButton.addActionListener(e -> removeSelectedJvmArg());
+        resetButton.addActionListener(e -> resetJvmArgsToDefaults());
+
+        buttonsPanel.add(addButton);
+        buttonsPanel.add(removeButton);
+        buttonsPanel.add(resetButton);
+
+        // Assemble panel
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.setBackground(PANEL_COLOR);
+        topPanel.add(titleLabel, BorderLayout.WEST);
+
+        panel.add(topPanel, BorderLayout.NORTH);
+        panel.add(scrollPane, BorderLayout.CENTER);
+        panel.add(buttonsPanel, BorderLayout.SOUTH);
+
+        return panel;
+    }
+
+    private JButton createSmallButton(String text) {
+        JButton button = new JButton(text);
+        button.setFont(new Font("Arial", Font.PLAIN, 11));
+        button.setBackground(new Color(60, 70, 85));
+        button.setForeground(TEXT_COLOR);
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        button.setBorder(new EmptyBorder(5, 10, 5, 10));
+
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(70, 130, 200));
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                button.setBackground(new Color(60, 70, 85));
+            }
+        });
+
+        return button;
+    }
+
+    private void addJvmArg() {
+        String input = JOptionPane.showInputDialog(
+                this,
+                "Enter JVM argument:",
+                "Add JVM Argument",
+                JOptionPane.PLAIN_MESSAGE
+        );
+
+        if (input != null && !input.trim().isEmpty()) {
+            jvmArgsListModel.addElement(input.trim());
+            saveJvmArgsToConfig();
+        }
+    }
+
+    private void removeSelectedJvmArg() {
+        int selectedIndex = jvmArgsList.getSelectedIndex();
+        if (selectedIndex != -1) {
+            jvmArgsListModel.remove(selectedIndex);
+            saveJvmArgsToConfig();
+        } else {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Please select an argument to remove.",
+                    "No Selection",
+                    JOptionPane.WARNING_MESSAGE
+            );
+        }
+    }
+
+    private void resetJvmArgsToDefaults() {
+        int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "Reset JVM arguments to defaults?",
+                "Confirm Reset",
+                JOptionPane.YES_NO_OPTION
+        );
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            jvmArgsListModel.clear();
+            List<String> defaults = LauncherConfig.getDefaultJvmArgs();
+            for (String arg : defaults) {
+                jvmArgsListModel.addElement(arg);
+            }
+            saveJvmArgsToConfig();
+        }
+    }
+
+    private void saveJvmArgsToConfig() {
+        List<String> args = new ArrayList<>();
+        for (int i = 0; i < jvmArgsListModel.size(); i++) {
+            args.add(jvmArgsListModel.getElementAt(i));
+        }
+        config.setJvmArgs(args);
     }
 
     private JCheckBox createStyledCheckbox(String text, String tooltip) {

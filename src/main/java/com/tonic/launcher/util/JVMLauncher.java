@@ -13,22 +13,14 @@ import java.util.Arrays;
 import java.util.List;
 
 public class JVMLauncher {
-    private static final String[] jvmArgs = {
-            "-XX:+DisableAttachMechanism",
-            "-Drunelite.launcher.blacklistedDlls=RTSSHooks.dll,RTSSHooks64.dll,NahimicOSD.dll,NahimicMSIOSD.dll,Nahimic2OSD.dll,Nahimic2DevProps.dll,k_fps32.dll,k_fps64.dll,SS2DevProps.dll,SS2OSD.dll,GTIII-OSD64-GL.dll,GTIII-OSD64-VK.dll,GTIII-OSD64.dll",
-            //"-Xmx768m",
-            //"-Xss2m",
-            "-XX:CompileThreshold=1500",
-            "-XX:+UseSerialGC",
-            "-XX:+UseStringDeduplication"
-    };
     /**
      * Launches an external JAR file in a new JVM process and exits current JVM
      *
+     * @param jvmArgs     JVM arguments to pass to the java process
      * @param programArgs Arguments to pass to the main method
      * @param callback    Callback to run after launching the new process (can be null)
      */
-    public static void launchExternalJar(List<String>  programArgs, Runnable callback) throws IOException {
+    public static void launchExternalJar(List<String> jvmArgs, List<String> programArgs, Runnable callback) throws IOException {
 
         File jarFile = new File(LauncherMain.VITA_DIR  + File.separator + "VitaLite.jar");
         if (!jarFile.exists()) {
@@ -47,7 +39,9 @@ public class JVMLauncher {
 
         List<String> command = new ArrayList<>();
         command.add(javaBin);
-        command.addAll(Arrays.asList(jvmArgs));
+        if (jvmArgs != null && !jvmArgs.isEmpty()) {
+            command.addAll(jvmArgs);
+        }
         command.add("-jar");
         command.add(jarFile.getAbsolutePath());
         command.add("-safeLaunch");
@@ -61,11 +55,13 @@ public class JVMLauncher {
         command.add(String.valueOf(port));
 
         ProcessBuilder processBuilder = new ProcessBuilder(command);
-        processBuilder.inheritIO();
+        processBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT); // VitaLite can print to console
+        processBuilder.redirectError(ProcessBuilder.Redirect.INHERIT);  // VitaLite can print errors
         processBuilder.start();
 
-        new Thread(() -> {
-            try (Socket socket = serverSocket.accept();
+        Thread listenerThread = new Thread(() -> {
+            try (ServerSocket ss = serverSocket; // Close ServerSocket when done
+                 Socket socket = ss.accept();
                  BufferedReader reader = new BufferedReader(
                          new InputStreamReader(socket.getInputStream()))) {
 
@@ -76,6 +72,8 @@ public class JVMLauncher {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }).start();
+        }, "LauncherComThread");
+        listenerThread.setDaemon(true); // Don't prevent JVM shutdown
+        listenerThread.start();
     }
 }

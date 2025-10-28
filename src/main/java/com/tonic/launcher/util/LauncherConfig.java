@@ -1,8 +1,20 @@
 package com.tonic.launcher.util;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class LauncherConfig
 {
     private ConfigManager config = new ConfigManager("LauncherConfig");
+
+    // Default JVM arguments
+    private static final List<String> DEFAULT_JVM_ARGS = Arrays.asList(
+            "-XX:+DisableAttachMechanism",
+            "-Drunelite.launcher.blacklistedDlls=RTSSHooks.dll,RTSSHooks64.dll,NahimicOSD.dll,NahimicMSIOSD.dll,Nahimic2OSD.dll,Nahimic2DevProps.dll,k_fps32.dll,k_fps64.dll,SS2DevProps.dll,SS2OSD.dll,GTIII-OSD64-GL.dll,GTIII-OSD64-VK.dll,GTIII-OSD64.dll",
+            "-XX:CompileThreshold=1500",
+            "-XX:+UseSerialGC",
+            "-XX:+UseStringDeduplication"
+    );
 
     public boolean isNoMusic()
     {
@@ -102,5 +114,37 @@ public class LauncherConfig
     public void setMouseHook(boolean hook)
     {
         config.setProperty("mouseHook", hook);
+    }
+
+    /**
+     * Get JVM arguments from config, returns defaults if none are saved
+     * @return list of JVM arguments
+     */
+    public List<String> getJvmArgs()
+    {
+        List<String> args = config.getStringList("jvmArgs");
+        // If no args saved, return defaults
+        if (args.isEmpty()) {
+            return DEFAULT_JVM_ARGS;
+        }
+        return args;
+    }
+
+    /**
+     * Set JVM arguments in config
+     * @param args list of JVM arguments
+     */
+    public void setJvmArgs(List<String> args)
+    {
+        config.setList("jvmArgs", args);
+    }
+
+    /**
+     * Get default JVM arguments
+     * @return list of default JVM arguments
+     */
+    public static List<String> getDefaultJvmArgs()
+    {
+        return DEFAULT_JVM_ARGS;
     }
 }

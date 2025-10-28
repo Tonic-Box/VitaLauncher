@@ -4,6 +4,7 @@ import com.tonic.launcher.ui.LauncherSettingsPanel;
 import com.tonic.launcher.ui.SplashScreen;
 import com.tonic.launcher.util.JDKManager;
 import com.tonic.launcher.util.JVMLauncher;
+import com.tonic.launcher.util.LauncherConfig;
 import com.tonic.launcher.util.UpdateProcessor;
 
 import javax.imageio.ImageIO;
@@ -64,7 +65,12 @@ public class LauncherMain {
 
         // Launching: 70-99% overall (stay at 99% until callback confirms launch)
         splash.setProgress(100, 99, "Launching VitaLite...");
-        JVMLauncher.launchExternalJar(cliArgs, () -> {
+
+        // Load JVM args from config
+        LauncherConfig config = new LauncherConfig();
+        List<String> jvmArgs = config.getJvmArgs();
+
+        JVMLauncher.launchExternalJar(jvmArgs, cliArgs, () -> {
             // Only reaches 100% when VitaLite confirms it's ready
             splash.setProgress(100, 100, "Launch complete!");
             try {

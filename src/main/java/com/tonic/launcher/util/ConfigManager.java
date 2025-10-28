@@ -358,4 +358,50 @@ public class ConfigManager {
         });
         return requiredChange.get();
     }
+
+    /**
+     * get a property as a list of strings
+     * @param propertyName name
+     * @return list of strings or empty list if not found
+     */
+    public java.util.List<String> getStringList(String propertyName) {
+        try {
+            if (builder.getConfiguration().containsKey(propertyName)) {
+                return new java.util.ArrayList<>(builder.getConfiguration().getList(String.class, propertyName));
+            }
+        } catch (ConfigurationException e) {
+            e.printStackTrace();
+        }
+        return new java.util.ArrayList<>();
+    }
+
+    /**
+     * get a property as a list of strings or a default value if it does not exist
+     * @param propertyName name
+     * @param defaultValue default value
+     * @return list of strings
+     */
+    public java.util.List<String> getStringListOrDefault(String propertyName, java.util.List<String> defaultValue) {
+        try {
+            if (builder.getConfiguration().containsKey(propertyName)) {
+                return new java.util.ArrayList<>(builder.getConfiguration().getList(String.class, propertyName));
+            }
+        } catch (ConfigurationException e) {
+            e.printStackTrace();
+        }
+        return defaultValue;
+    }
+
+    /**
+     * set a list property, replacing any existing values
+     * @param propertyName name
+     * @param values list of values
+     */
+    @SneakyThrows
+    public void setList(String propertyName, java.util.List<String> values) {
+        builder.getConfiguration().clearProperty(propertyName);
+        if (values != null && !values.isEmpty()) {
+            builder.getConfiguration().addProperty(propertyName, values);
+        }
+    }
 }
