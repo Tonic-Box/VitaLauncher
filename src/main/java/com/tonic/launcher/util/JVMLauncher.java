@@ -16,8 +16,8 @@ public class JVMLauncher {
     private static final String[] jvmArgs = {
             "-XX:+DisableAttachMechanism",
             "-Drunelite.launcher.blacklistedDlls=RTSSHooks.dll,RTSSHooks64.dll,NahimicOSD.dll,NahimicMSIOSD.dll,Nahimic2OSD.dll,Nahimic2DevProps.dll,k_fps32.dll,k_fps64.dll,SS2DevProps.dll,SS2OSD.dll,GTIII-OSD64-GL.dll,GTIII-OSD64-VK.dll,GTIII-OSD64.dll",
-            "-Xmx768m",
-            "-Xss2m",
+            //"-Xmx768m",
+            //"-Xss2m",
             "-XX:CompileThreshold=1500",
             "-XX:+UseSerialGC",
             "-XX:+UseStringDeduplication"
