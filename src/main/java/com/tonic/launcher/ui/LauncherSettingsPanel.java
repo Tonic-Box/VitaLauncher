@@ -10,6 +10,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.DefaultListModel;
+import javax.swing.DefaultListCellRenderer;
 
 public class LauncherSettingsPanel extends JFrame {
     private static final int WIDTH = 500;
@@ -35,6 +36,13 @@ public class LauncherSettingsPanel extends JFrame {
     // Text fields
     private JTextField rsdumpField;
     private JTextField proxyField;
+    private JTextField loginField;
+
+    // Combo box
+    private JComboBox<String> loginTypeCombo;
+
+    // Login hint label
+    private JLabel loginHintLabel;
 
     // JVM Args
     private DefaultListModel<String> jvmArgsListModel;
@@ -254,6 +262,16 @@ public class LauncherSettingsPanel extends JFrame {
         proxyField.setText(config.getProxyData());
         stringOptionsPanel.add(proxyComponents.panel);
 
+        // Login section
+        stringOptionsPanel.add(Box.createVerticalStrut(12));
+        JPanel loginPanel = createLoginPanel();
+        stringOptionsPanel.add(loginPanel);
+
+        // Login hint label
+        stringOptionsPanel.add(Box.createVerticalStrut(3));
+        JPanel loginHintPanel = createLoginHintPanel();
+        stringOptionsPanel.add(loginHintPanel);
+
         // JVM Args section
         stringOptionsPanel.add(Box.createVerticalStrut(15));
         JPanel jvmArgsPanel = createJvmArgsPanel();
@@ -269,6 +287,102 @@ public class LauncherSettingsPanel extends JFrame {
         panel.add(stringOptionsPanel, BorderLayout.CENTER);
 
         return panel;
+    }
+
+    private JPanel createLoginPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BorderLayout(10, 0));
+        panel.setBackground(PANEL_COLOR);
+        panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
+
+        // Label
+        JLabel label = new JLabel("Login:");
+        label.setFont(new Font("Arial", Font.PLAIN, 13));
+        label.setForeground(TEXT_COLOR);
+        label.setPreferredSize(new Dimension(120, 25));
+
+        // Text field
+        loginField = new JTextField();
+        loginField.setFont(new Font("Arial", Font.PLAIN, 12));
+        loginField.setBackground(new Color(50, 55, 65));
+        loginField.setForeground(TEXT_COLOR);
+        loginField.setCaretColor(TEXT_COLOR);
+        loginField.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(60, 65, 75)),
+            new EmptyBorder(5, 8, 5, 8)
+        ));
+        loginField.setToolTipText("Email or username for login");
+        loginField.setText(config.getLoginString());
+        loginField.getDocument().addDocumentListener((SimpleDocumentListener) e -> config.setLoginString(loginField.getText()));
+
+        // Combo box
+        String[] loginTypes = {"Legacy", "Jagex"};
+        loginTypeCombo = new JComboBox<>(loginTypes);
+        loginTypeCombo.setFont(new Font("Arial", Font.PLAIN, 12));
+        loginTypeCombo.setBackground(new Color(50, 55, 65));
+        loginTypeCombo.setForeground(TEXT_COLOR);
+        loginTypeCombo.setFocusable(false);
+        loginTypeCombo.setPreferredSize(new Dimension(100, 30));
+        loginTypeCombo.setSelectedItem(config.getLoginType());
+        loginTypeCombo.addActionListener(e -> {
+            config.setLoginType((String) loginTypeCombo.getSelectedItem());
+            updateLoginHintText();
+        });
+
+        // Combo box styling
+        loginTypeCombo.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                setBackground(isSelected ? new Color(70, 130, 200) : new Color(50, 55, 65));
+                setForeground(TEXT_COLOR);
+                setBorder(new EmptyBorder(5, 8, 5, 8));
+                return this;
+            }
+        });
+
+        // Layout
+        JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        leftPanel.setBackground(PANEL_COLOR);
+        leftPanel.add(label);
+
+        JPanel centerPanel = new JPanel(new BorderLayout(5, 0));
+        centerPanel.setBackground(PANEL_COLOR);
+        centerPanel.add(loginField, BorderLayout.CENTER);
+        centerPanel.add(loginTypeCombo, BorderLayout.EAST);
+
+        panel.add(leftPanel, BorderLayout.WEST);
+        panel.add(centerPanel, BorderLayout.CENTER);
+
+        return panel;
+    }
+
+    private JPanel createLoginHintPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(PANEL_COLOR);
+        panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 20));
+
+        loginHintLabel = new JLabel();
+        loginHintLabel.setFont(new Font("Arial", Font.ITALIC, 11));
+        loginHintLabel.setForeground(LABEL_COLOR);
+
+        // Set initial text based on current login type
+        updateLoginHintText();
+
+        panel.add(loginHintLabel, BorderLayout.WEST);
+
+        return panel;
+    }
+
+    private void updateLoginHintText() {
+        if (loginHintLabel == null) return;
+
+        String loginType = (String) loginTypeCombo.getSelectedItem();
+        if ("Legacy".equals(loginType)) {
+            loginHintLabel.setText("Format: user:pass");
+        } else if ("Jagex".equals(loginType)) {
+            loginHintLabel.setText("Format: sessionID:characterID:displayName (or path to RL credentials file)");
+        }
     }
 
     private JPanel createJvmArgsPanel() {
@@ -539,6 +653,16 @@ public class LauncherSettingsPanel extends JFrame {
         if (proxyCheckbox.isSelected() && !proxyField.getText().trim().isEmpty()) {
             args.add("--proxy");
             args.add(proxyField.getText().trim());
+        }
+
+        if (!loginField.getText().trim().isEmpty()) {
+            String loginType = (String) loginTypeCombo.getSelectedItem();
+            if ("Legacy".equals(loginType)) {
+                args.add("--legacyLogin");
+            } else if ("Jagex".equals(loginType)) {
+                args.add("--jagexLogin");
+            }
+            args.add(loginField.getText().trim());
         }
 
         return args;

@@ -116,6 +116,26 @@ public class LauncherConfig
         config.setProperty("mouseHook", hook);
     }
 
+    public String getLoginString()
+    {
+        return config.getStringOrDefault("loginString", "");
+    }
+
+    public void setLoginString(String loginString)
+    {
+        config.setProperty("loginString", loginString);
+    }
+
+    public String getLoginType()
+    {
+        return config.getStringOrDefault("loginType", "Legacy");
+    }
+
+    public void setLoginType(String loginType)
+    {
+        config.setProperty("loginType", loginType);
+    }
+
     /**
      * Get JVM arguments from config, returns defaults if none are saved
      * @return list of JVM arguments

@@ -200,7 +200,7 @@ public class SplashScreen extends JWindow {
             g2d.setColor(new Color(150, 160, 180));
             Font subtitleFont = new Font("Arial", Font.PLAIN, 14);
             g2d.setFont(subtitleFont);
-            String subtitle = "Launcher v1.8";
+            String subtitle = "Launcher v1.9";
             FontMetrics subtitleMetrics = g2d.getFontMetrics(subtitleFont);
             int subtitleWidth = subtitleMetrics.stringWidth(subtitle);
             g2d.drawString(subtitle, centerX - subtitleWidth / 2, y);
