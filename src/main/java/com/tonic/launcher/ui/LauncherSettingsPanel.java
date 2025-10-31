@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.DefaultListModel;
 import javax.swing.DefaultListCellRenderer;
+import javax.swing.SpinnerNumberModel;
 
 public class LauncherSettingsPanel extends JFrame {
     private static final int WIDTH = 500;
@@ -40,6 +41,10 @@ public class LauncherSettingsPanel extends JFrame {
 
     // Combo box
     private JComboBox<String> loginTypeCombo;
+
+    // Memory settings
+    private JCheckBox maxMemoryCheckbox;
+    private JSpinner maxMemorySpinner;
 
     // Login hint label
     private JLabel loginHintLabel;
@@ -238,6 +243,9 @@ public class LauncherSettingsPanel extends JFrame {
         booleanOptionsPanel.add(incognitoCheckbox);
         booleanOptionsPanel.add(mouseHookCheckbox);
 
+        // Memory settings panel
+        JPanel memoryPanel = createMemoryPanel();
+
         // String options with text fields
         JPanel stringOptionsPanel = new JPanel();
         stringOptionsPanel.setLayout(new BoxLayout(stringOptionsPanel, BoxLayout.Y_AXIS));
@@ -278,13 +286,74 @@ public class LauncherSettingsPanel extends JFrame {
         stringOptionsPanel.add(jvmArgsPanel);
 
         // Add sections to main panel with spacing
-        JPanel topSection = new JPanel(new BorderLayout());
+        JPanel topSection = new JPanel();
+        topSection.setLayout(new BoxLayout(topSection, BoxLayout.Y_AXIS));
         topSection.setBackground(PANEL_COLOR);
-        topSection.add(booleanOptionsPanel, BorderLayout.NORTH);
-        topSection.add(Box.createVerticalStrut(20), BorderLayout.CENTER);
+        topSection.add(booleanOptionsPanel);
+        topSection.add(Box.createVerticalStrut(15));
+        topSection.add(memoryPanel);
+        topSection.add(Box.createVerticalStrut(20));
 
         panel.add(topSection, BorderLayout.NORTH);
         panel.add(stringOptionsPanel, BorderLayout.CENTER);
+
+        return panel;
+    }
+
+    private JPanel createMemoryPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        panel.setBackground(PANEL_COLOR);
+        panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 35));
+
+        // Checkbox
+        maxMemoryCheckbox = new JCheckBox("Max Memory:");
+        maxMemoryCheckbox.setFont(new Font("Arial", Font.PLAIN, 13));
+        maxMemoryCheckbox.setForeground(TEXT_COLOR);
+        maxMemoryCheckbox.setBackground(PANEL_COLOR);
+        maxMemoryCheckbox.setFocusPainted(false);
+        maxMemoryCheckbox.setToolTipText("Set maximum JVM memory (-Xmx)");
+        maxMemoryCheckbox.setSelected(config.isMaxMemoryEnabled());
+        maxMemoryCheckbox.addActionListener(e -> {
+            config.setMaxMemoryEnabled(maxMemoryCheckbox.isSelected());
+            maxMemorySpinner.setEnabled(maxMemoryCheckbox.isSelected());
+        });
+
+        int memoryValue = config.getMaxMemoryValue();
+        memoryValue = Math.max(768, Math.min(8192, memoryValue));
+
+        SpinnerNumberModel spinnerModel = new SpinnerNumberModel(
+                memoryValue, // initial value
+                320,  // min
+                8192, // max
+                64    // step
+        );
+        maxMemorySpinner = new JSpinner(spinnerModel);
+        maxMemorySpinner.setFont(new Font("Arial", Font.PLAIN, 12));
+        maxMemorySpinner.setPreferredSize(new Dimension(80, 25));
+        maxMemorySpinner.setEnabled(config.isMaxMemoryEnabled());
+        maxMemorySpinner.addChangeListener(e -> {
+            config.setMaxMemoryValue((Integer) maxMemorySpinner.getValue());
+        });
+
+        // Style spinner
+        JComponent editor = maxMemorySpinner.getEditor();
+        if (editor instanceof JSpinner.DefaultEditor) {
+            JSpinner.DefaultEditor spinnerEditor = (JSpinner.DefaultEditor) editor;
+            spinnerEditor.getTextField().setBackground(new Color(50, 55, 65));
+            spinnerEditor.getTextField().setForeground(TEXT_COLOR);
+            spinnerEditor.getTextField().setCaretColor(TEXT_COLOR);
+        }
+
+        // MB label
+        JLabel mbLabel = new JLabel(" MB");
+        mbLabel.setFont(new Font("Arial", Font.PLAIN, 12));
+        mbLabel.setForeground(LABEL_COLOR);
+
+        panel.add(maxMemoryCheckbox);
+        panel.add(Box.createHorizontalStrut(10));
+        panel.add(maxMemorySpinner);
+        panel.add(mbLabel);
 
         return panel;
     }

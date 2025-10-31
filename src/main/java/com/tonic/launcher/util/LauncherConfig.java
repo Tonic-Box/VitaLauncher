@@ -136,6 +136,26 @@ public class LauncherConfig
         config.setProperty("loginType", loginType);
     }
 
+    public boolean isMaxMemoryEnabled()
+    {
+        return config.getBooleanOrDefault("maxMemoryEnabled", false);
+    }
+
+    public void setMaxMemoryEnabled(boolean enabled)
+    {
+        config.setProperty("maxMemoryEnabled", enabled);
+    }
+
+    public int getMaxMemoryValue()
+    {
+        return config.getIntOrDefault("maxMemoryValue", 768);
+    }
+
+    public void setMaxMemoryValue(int value)
+    {
+        config.setProperty("maxMemoryValue", value);
+    }
+
     /**
      * Get JVM arguments from config, returns defaults if none are saved
      * @return list of JVM arguments

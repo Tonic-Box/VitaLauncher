@@ -68,7 +68,12 @@ public class LauncherMain {
 
         // Load JVM args from config
         LauncherConfig config = new LauncherConfig();
-        List<String> jvmArgs = config.getJvmArgs();
+        List<String> jvmArgs = new java.util.ArrayList<>(config.getJvmArgs());
+
+        // Add -Xmx if max memory is enabled
+        if (config.isMaxMemoryEnabled()) {
+            jvmArgs.add("-Xmx" + config.getMaxMemoryValue() + "m");
+        }
 
         JVMLauncher.launchExternalJar(jvmArgs, cliArgs, () -> {
             // Only reaches 100% when VitaLite confirms it's ready

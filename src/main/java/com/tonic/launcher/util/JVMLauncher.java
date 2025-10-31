@@ -14,7 +14,7 @@ import java.util.List;
 
 public class JVMLauncher {
     /**
-     * Launches an external JAR file in a new JVM process and exits current JVM
+     * LauncheXmxs an external JAR file in a new JVM process and exits current JVM
      *
      * @param jvmArgs     JVM arguments to pass to the java process
      * @param programArgs Arguments to pass to the main method
