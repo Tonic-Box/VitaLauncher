@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.tonic.launcher"
-version = "2.0"
+version = "2.1"
 
 repositories {
     mavenCentral()
@@ -16,6 +16,7 @@ dependencies {
     implementation("org.apache.commons:commons-compress:1.26.0")
     implementation("org.apache.commons:commons-configuration2:2.10.1")
     implementation("commons-beanutils:commons-beanutils:1.11.0")
+    implementation("io.netty:netty-all:5.0.0.Alpha2")
     compileOnly("org.projectlombok:lombok:1.18.24")
     annotationProcessor("org.projectlombok:lombok:1.18.24")
     implementation(kotlin("stdlib-jdk8"))

@@ -2,10 +2,7 @@ package com.tonic.launcher;
 
 import com.tonic.launcher.ui.LauncherSettingsPanel;
 import com.tonic.launcher.ui.SplashScreen;
-import com.tonic.launcher.util.JDKManager;
-import com.tonic.launcher.util.JVMLauncher;
-import com.tonic.launcher.util.LauncherConfig;
-import com.tonic.launcher.util.UpdateProcessor;
+import com.tonic.launcher.util.*;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -59,7 +56,9 @@ public class LauncherMain {
         splash.setProgress(0, 40, "Checking for updates...");
         if(!UpdateProcessor.process(splash))
         {
-            splash.setError("An update is required but not yet available. Please try again later.");
+            splash.setError("An update is required but not yet available. Falling back to previous version.");
+            cliArgs.add("--targetBootstrap");
+            cliArgs.add(Versioning.getLiveVitaLiteVersion().split("_")[0]);
             return;
         }
 
