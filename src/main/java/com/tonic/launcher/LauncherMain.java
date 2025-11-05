@@ -56,7 +56,6 @@ public class LauncherMain {
         splash.setProgress(0, 40, "Checking for updates...");
         if(!UpdateProcessor.process(splash))
         {
-            splash.setProgress(0, 40, "An update is required but not yet available. Falling back to previous version.");
             cliArgs.add("--targetBootstrap");
             cliArgs.add(Versioning.getLiveVitaLiteVersion().split("_")[0]);
         }

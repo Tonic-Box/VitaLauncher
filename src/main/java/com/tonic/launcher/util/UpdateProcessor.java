@@ -32,7 +32,16 @@ public class UpdateProcessor
         }
 
         if(response == Update.UPDATE_WAITING)
+        {
+            splash.setProgress(0, 40, "An update is required but not yet available. Falling back to previous version.");
+            String liveVita = Versioning.getLiveVitaLiteVersion();
+            String current = Versioning.getVitaLiteVersion();
+            if(!liveVita.equals(current)) {
+                downloadLatestVitaLite(splash);
+                writeVersion();
+            }
             return false;
+        }
 
         if(splash != null) {
             splash.setProgress(0, 40, "Downloading VitaLite " + Versioning.getLiveVitaLiteVersion() + "...");
