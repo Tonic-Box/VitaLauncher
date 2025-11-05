@@ -56,10 +56,9 @@ public class LauncherMain {
         splash.setProgress(0, 40, "Checking for updates...");
         if(!UpdateProcessor.process(splash))
         {
-            splash.setError("An update is required but not yet available. Falling back to previous version.");
+            splash.setProgress(0, 40, "An update is required but not yet available. Falling back to previous version.");
             cliArgs.add("--targetBootstrap");
             cliArgs.add(Versioning.getLiveVitaLiteVersion().split("_")[0]);
-            return;
         }
 
         // Launching: 70-99% overall (stay at 99% until callback confirms launch)
