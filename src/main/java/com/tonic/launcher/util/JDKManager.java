@@ -161,7 +161,7 @@ public class JDKManager {
                             }
                         }
 
-                        lastSpeedEta = String.format(" • %.1f MB/s • %s left", speedMBps, etaStr);
+                        lastSpeedEta = String.format(" | %.1f MB/s | %s left", speedMBps, etaStr);
                         lastSpeedUpdate = currentTime;
                         bytesAtLastSpeedUpdate = totalBytes;
                     }

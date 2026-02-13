@@ -55,7 +55,7 @@ public class SplashScreen extends JWindow {
      */
     public void setStageProgress(int progress, String text) {
         this.stageProgress = Math.max(0, Math.min(100, progress));
-        this.stageText = text;
+        this.stageText = sanitizeStatusText(text);
         SwingUtilities.invokeLater(splashPanel::repaint);
     }
 
@@ -73,7 +73,7 @@ public class SplashScreen extends JWindow {
     public void setProgress(int stageProgress, int overallProgress, String text) {
         this.stageProgress = Math.max(0, Math.min(100, stageProgress));
         this.overallProgress = Math.max(0, Math.min(100, overallProgress));
-        this.stageText = text;
+        this.stageText = sanitizeStatusText(text);
         SwingUtilities.invokeLater(splashPanel::repaint);
     }
 
@@ -84,7 +84,7 @@ public class SplashScreen extends JWindow {
     }
 
     public void setError(String message) {
-        this.stageText = message;
+        this.stageText = sanitizeStatusText(message);
         this.isError = true;
         SwingUtilities.invokeLater(() -> {
             closeButton.setVisible(true);
@@ -93,6 +93,24 @@ public class SplashScreen extends JWindow {
             revalidate();
             repaint();
         });
+    }
+
+    private String sanitizeStatusText(String text) {
+        if (text == null || text.isEmpty()) {
+            return "";
+        }
+
+        StringBuilder sanitized = new StringBuilder(text.length());
+        for (int i = 0; i < text.length(); i++) {
+            char currentChar = text.charAt(i);
+            if (currentChar >= 32 && currentChar <= 126) {
+                sanitized.append(currentChar);
+            } else {
+                sanitized.append(' ');
+            }
+        }
+
+        return sanitized.toString().replaceAll("\\s+", " ").trim();
     }
 
     public boolean isError() {
