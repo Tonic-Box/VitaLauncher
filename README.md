@@ -1,9 +1,6 @@
 # VitaLite Launcher
-The launcher for [VitaLite](https://github.com/Tonic-Box/VitaLite). It keeps VitaLite up to date with the latest release and launches it with your chosen settings.
+The launcher for [VitaLite](https://github.com/Tonic-Box/VitaLite).
 - Downloads and updates VitaLite automatically from the latest GitHub release
-- Falls back to the previous VitaLite version while an update for a new RuneLite revision is not yet out
-- Downloads its own JDK 11 for running the client, no separate setup needed
-- Saves launch options, JVM arguments and memory settings between launches
 
 ## Download
 Download the `VitaLauncher-<version>.jar` from the [most recent release](https://github.com/Tonic-Box/VitaLauncher/releases/latest).
