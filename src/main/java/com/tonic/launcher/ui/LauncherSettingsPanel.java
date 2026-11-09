@@ -332,9 +332,7 @@ public class LauncherSettingsPanel extends JFrame {
         maxMemorySpinner.setFont(new Font("Arial", Font.PLAIN, 12));
         maxMemorySpinner.setPreferredSize(new Dimension(80, 25));
         maxMemorySpinner.setEnabled(config.isMaxMemoryEnabled());
-        maxMemorySpinner.addChangeListener(e -> {
-            config.setMaxMemoryValue((Integer) maxMemorySpinner.getValue());
-        });
+        maxMemorySpinner.addChangeListener(e -> config.setMaxMemoryValue((Integer) maxMemorySpinner.getValue()));
 
         // Style spinner
         JComponent editor = maxMemorySpinner.getEditor();
@@ -717,6 +715,10 @@ public class LauncherSettingsPanel extends JFrame {
 
         if (incognitoCheckbox.isSelected()) {
             args.add("-incognito");
+        }
+
+        if (mouseHookCheckbox.isSelected()) {
+            args.add("-disableMouseHook");
         }
 
         if (proxyCheckbox.isSelected() && !proxyField.getText().trim().isEmpty()) {
