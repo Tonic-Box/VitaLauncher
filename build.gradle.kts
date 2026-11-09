@@ -22,6 +22,10 @@ dependencies {
 }
 
 tasks {
+    withType<JavaCompile> {
+        options.encoding = "UTF-8"
+    }
+
     build {
         finalizedBy("shadowJar")
     }
