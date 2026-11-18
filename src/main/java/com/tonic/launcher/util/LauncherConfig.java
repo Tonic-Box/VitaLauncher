@@ -5,7 +5,7 @@ import java.util.List;
 
 public class LauncherConfig
 {
-    private ConfigManager config = new ConfigManager("LauncherConfig");
+    private final ConfigManager config = new ConfigManager("LauncherConfig");
 
     // Default JVM arguments
     private static final List<String> DEFAULT_JVM_ARGS = Arrays.asList(
@@ -13,8 +13,15 @@ public class LauncherConfig
             "-Drunelite.launcher.blacklistedDlls=RTSSHooks.dll,RTSSHooks64.dll,NahimicOSD.dll,NahimicMSIOSD.dll,Nahimic2OSD.dll,Nahimic2DevProps.dll,k_fps32.dll,k_fps64.dll,SS2DevProps.dll,SS2OSD.dll,GTIII-OSD64-GL.dll,GTIII-OSD64-VK.dll,GTIII-OSD64.dll",
             "-XX:CompileThreshold=1500",
             "-XX:+UseSerialGC",
-            "-XX:+UseStringDeduplication"
+            "-XX:+UseStringDeduplication",
+            "-Xms256m",
+            "-Xmn96m",
+            "-XX:MinHeapFreeRatio=10",
+            "-XX:MaxHeapFreeRatio=25",
+            "-XX:TieredStopAtLevel=1"
     );
+
+    private static final List<String> PREVIOUS_DEFAULT_JVM_ARGS = DEFAULT_JVM_ARGS.subList(0, 5);
 
     public boolean isNoMusic()
     {
@@ -157,14 +164,14 @@ public class LauncherConfig
     }
 
     /**
-     * Get JVM arguments from config, returns defaults if none are saved
+     * Get JVM arguments from config, returns defaults if none are saved or the saved ones are the previous
+     * defaults, so lists nobody customised pick up new defaults
      * @return list of JVM arguments
      */
     public List<String> getJvmArgs()
     {
         List<String> args = config.getStringList("jvmArgs");
-        // If no args saved, return defaults
-        if (args.isEmpty()) {
+        if (args.isEmpty() || args.equals(PREVIOUS_DEFAULT_JVM_ARGS)) {
             return DEFAULT_JVM_ARGS;
         }
         return args;
