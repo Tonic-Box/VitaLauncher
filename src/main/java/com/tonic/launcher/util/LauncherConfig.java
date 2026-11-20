@@ -83,16 +83,6 @@ public class LauncherConfig
         config.setProperty("rsDumpPath", path);
     }
 
-    public boolean isIncognito()
-    {
-        return config.getBooleanOrDefault("incognito", false);
-    }
-
-    public void setIncognito(boolean incognito)
-    {
-        config.setProperty("incognito", incognito);
-    }
-
     public boolean isProxy()
     {
         return config.getBooleanOrDefault("proxy", false);
